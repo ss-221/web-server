@@ -7,11 +7,11 @@ void socket_helper::GetError(const char *exception_message)
     if ((_POSIX_C_SOURCE >= 200112L || _XOPEN_SOURCE >= 600) && !_GNU_SOURCE)
     {
         strerror_r(errno, buffer, max_buffer_size);
-        std::cout << buffer << '\n';
+        std::cout << buffer << std::endl;
     }
     else
     {
-        std::cout << strerror_r(errno, buffer, max_buffer_size) << '\n';
+        std::cout << strerror_r(errno, buffer, max_buffer_size) << std::endl;
     }
     throw(exception_message);
 }
@@ -28,7 +28,7 @@ socket_helper::ServerSocket::ServerSocket(int domain_, int type_, int protocol_)
 
 socket_helper::ServerSocket::~ServerSocket()
 {
-    std::cout << "Destroying the socket.\n";
+    std::cout << "Destroying the socket." << std::endl;
     close(id);
 }
 
@@ -52,11 +52,12 @@ void socket_helper::ServerSocket::set_address(std::string addr)
     int ret_val = inet_pton(domain, addr.c_str(), &(address.sin_addr));
     if (ret_val == 0)
     {
-        std::cout << "Improper IP address.\n";
+        std::cout << "Improper IP address. Switching to default" << std::endl;
+        set_address(INADDR_ANY);
     }
     else if (ret_val < 0)
     {
-        GetError("Could not convert IP address.");
+        GetError("Could not convert the IP address.");
     }
 }
 
@@ -84,19 +85,19 @@ void socket_helper::ServerSocket::Listen(int backlog)
     {
         GetError("Failed to listen.");
     }
-    std::cout << "Listening...\n";
+    std::cout << "Listening..." << std::endl;
 
     while (true)
     {
         IncomingSocket client_socket;
         Accept(client_socket);
-        std::cout << "Connected to the client.\n";
+        std::cout << "Connected to the client." << std::endl;
 
         std::string message_received = client_socket.Read();
         std::cout << "Message received: " << message_received << std::endl;
         if (message_received.find("QUIT") != std::string::npos)
         {
-            std::cout << "Received QUIT. Quitting.\n";
+            std::cout << "Received QUIT. Quitting." << std::endl;
             shutdown(client_socket.GetSocket(), SHUT_RDWR);
             client_socket.Close();
             return;
@@ -181,7 +182,7 @@ void socket_helper::IncomingSocket::SendFile(std::string file_name)
             int bytes_to_send = (total_size < block_size) ? total_size : block_size;
             int bytes_sent = sendfile(GetSocket(), fd, NULL, block_size);
             total_size -= bytes_sent;
-            std::cout << "DATA SENT: " << bytes_sent << '\n';
+            std::cout << "DATA SENT: " << bytes_sent << std::endl;
         }
     }
     close(fd);
