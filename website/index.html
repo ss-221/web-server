@@ -1,0 +1,69 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <title>Your Web Server</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <style>
+        body {
+            background-color: #202222;
+        }
+
+        .center {
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            height: 97vh;
+            width: 100%;
+            border: none;
+        }
+
+        .btnHolder {
+            text-align: center;
+        }
+
+        .btn {
+            color: aqua;
+            margin: 15px;
+            border: 0px;
+            background-color: inherit;
+            padding: 14px 28px;
+            font-size: 16px;
+            cursor: pointer;
+            display: inline-block;
+        }
+
+        .btn:hover {
+            background: #8389aa;
+        }
+        
+        .extra-info {
+            font-size: large;
+            color: aqua;
+            position: absolute;
+            margin-left: 10px;
+        }
+    </style>
+</head>
+
+<body>
+    <div>
+        <div class="center">
+            <form action="http://localhost:8080" method="post">
+                <div>
+                    <input type="text"
+                        style="background-color: #485658; border: none; border-radius: 5px; line-height: 25px; color: white; position: relative; justify-content: center;"
+                        name="msgInput" placeholder="Enter your message" size="35">
+                        <span class="extra-info">(Send ' QUIT ' to stop the server)</span>
+                </div>
+                <div class="btnHolder">
+                    <button type="submit" class="btn">Send</button>
+                </div>
+            </form>
+                  
+        </div>
+    </div>
+</body>
+
+</html>

@@ -1,5 +1,4 @@
 #include <socket_helper.h>
-#include <iostream>
 
 void socket_helper::GetError(const char *exception_message)
 {
@@ -36,6 +35,11 @@ socket_helper::ServerSocket::~ServerSocket()
 int socket_helper::Socket::GetSocket()
 {
     return id;
+}
+
+void socket_helper::Socket::Close()
+{
+    close(id);
 }
 
 void socket_helper::ServerSocket::set_address(in_addr_t addr)
@@ -86,24 +90,19 @@ void socket_helper::ServerSocket::Listen(int backlog)
     {
         IncomingSocket client_socket;
         Accept(client_socket);
-
         std::cout << "Connected to the client.\n";
 
         std::string message_received = client_socket.Read();
-        std::cout << "Message received: " << message_received << '\n';
-
-        std::string msg = "Hello to you too!";
-
-        if (send(client_socket.GetSocket(), msg.c_str(), msg.size() + 1, 0) < 0)
+        std::cout << "Message received: " << message_received << std::endl;
+        if (message_received.find("QUIT") != std::string::npos)
         {
-            GetError("Failed to send the message.");
-        }
-
-        if (message_received == "quit")
-        {
-            std::cout << "Received quit. Quitting.\n";
+            std::cout << "Received QUIT. Quitting.\n";
+            shutdown(client_socket.GetSocket(), SHUT_RDWR);
+            client_socket.Close();
             return;
         }
+
+        client_socket.SendFile("../../website/index.html");
     }
 }
 
@@ -137,9 +136,63 @@ std::string socket_helper::IncomingSocket::Read()
     {
         GetError("Failed to read the message.");
     }
-
+    if (len == 0)
+        return "";
     std::string message = std::string(buffer, len);
-    message.pop_back();
 
     return message;
+}
+
+void socket_helper::IncomingSocket::Send(std::string &message)
+{
+    if (send(GetSocket(), message.c_str(), message.size(), 0) < 0)
+    {
+        GetError("Failed to send the message.");
+    }
+}
+
+void socket_helper::IncomingSocket::SendFile(std::string file_name)
+{
+    std::string file_extension = std::filesystem::path(file_name).extension();
+
+    int fd = open("../../website/index.html", O_RDONLY);
+    if (fd < 0)
+    {
+        GetError("Failed to open index.html.");
+    }
+
+    struct stat file_info;
+    fstat(fd, &file_info);
+    int total_size = file_info.st_size;
+    int block_size = file_info.st_blksize;
+
+    std::string header = "HTTP/1.1 200 OK\r\nContent-Type: ";
+    header += GetMimeType(file_extension);
+    header += "\r\nContent-Length: ";
+    header += std::to_string(total_size);
+    header += "\r\n\r\n";
+    std::cout << "Header: " << header << '\n';
+    Send(header);
+
+    if (fd >= 0)
+    {
+        while (total_size > 0)
+        {
+            int bytes_to_send = (total_size < block_size) ? total_size : block_size;
+            int bytes_sent = sendfile(GetSocket(), fd, NULL, block_size);
+            total_size -= bytes_sent;
+            std::cout << "DATA SENT: " << bytes_sent << '\n';
+        }
+    }
+    close(fd);
+}
+
+std::string socket_helper::GetMimeType(std::string &file_extension)
+{
+    if (file_extension == ".html")
+    {
+        return "text/html";
+    }
+
+    return "";
 }

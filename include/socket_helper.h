@@ -8,6 +8,12 @@
 #include <string>
 #include <cstdlib>
 #include <unistd.h>
+#include <sys/stat.h>
+#include <sys/types.h>
+#include <fcntl.h>
+#include <sys/sendfile.h>
+#include <filesystem>
+#include <iostream>
 
 constexpr int max_buffer_size = 1024;
 
@@ -15,6 +21,7 @@ namespace socket_helper
 {
 
     void GetError(const char *);
+    std::string GetMimeType(std::string &);
 
     class Socket;
     class ServerSocket;
@@ -28,8 +35,9 @@ namespace socket_helper
 
         int GetSocket();
 
-        virtual void set_port(in_port_t port);
-        virtual sockaddr_in *get_address();
+        void set_port(in_port_t port);
+        sockaddr_in *get_address();
+        void Close();
 
     protected:
         int id;
@@ -65,6 +73,7 @@ namespace socket_helper
         void set_max_read_bytes(size_t);
         std::string Read();
         void Send(std::string &);
+        void SendFile(std::string);
 
     private:
         size_t max_read_bytes;

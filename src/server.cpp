@@ -1,9 +1,7 @@
 #include <socket_helper.h>
-#include <iostream>
-#include <unistd.h>
-#include <sys/types.h>
+#include <bit>
 
-constexpr int max_backlog_queue = 3;
+constexpr int max_backlog_queue = 5;
 
 int main(int argc, char *argv[])
 {
@@ -13,7 +11,12 @@ int main(int argc, char *argv[])
 
         ServerSocket server_socket;
         server_socket.set_address(INADDR_ANY);
-        server_socket.set_port(atoi(argv[1]));
+
+        in_port_t port = atoi(argv[1]);
+        if (std::endian::native == std::endian::little)
+            port = ntohs(port);
+
+        server_socket.set_port(port);
         server_socket.Bind();
 
         server_socket.Listen(max_backlog_queue);

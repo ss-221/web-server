@@ -4,6 +4,8 @@ project(web-server)
 #include(CTest)
 #enable_testing()
 
+set(CMAKE_CXX_STANDARD 20)
+
 include_directories(${CMAKE_SOURCE_DIR}/include)
 add_subdirectory(src)
 
