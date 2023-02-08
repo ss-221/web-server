@@ -68,6 +68,7 @@ namespace socket_helper
     {
     public:
         IncomingSocket() = default;
+        ~IncomingSocket();
 
         void operator=(const int &sock);
         void set_max_read_bytes(size_t);

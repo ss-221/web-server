@@ -28,7 +28,7 @@ socket_helper::ServerSocket::ServerSocket(int domain_, int type_, int protocol_)
 
 socket_helper::ServerSocket::~ServerSocket()
 {
-    std::cout << "Destroying the socket." << std::endl;
+    std::cout << "Destroying the ServerSocket." << std::endl;
     close(id);
 }
 
@@ -117,6 +117,12 @@ void socket_helper::ServerSocket::Accept(IncomingSocket &client_socket)
     {
         GetError("Failed to accept the incoming socket.");
     }
+}
+
+socket_helper::IncomingSocket::~IncomingSocket()
+{
+    std::cout << "Destroying the IncomingSocket." << std::endl;
+    close(id);
 }
 
 void socket_helper::IncomingSocket::operator=(const int &sock)
