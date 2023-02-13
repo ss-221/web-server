@@ -20,7 +20,6 @@ int main(int argc, char *argv[])
         server_socket.Bind();
 
         server_socket.Listen(max_backlog_queue);
-        std::cout << "Listening...\n";
     }
     catch (const char *exception_message)
     {

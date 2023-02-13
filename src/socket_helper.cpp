@@ -95,12 +95,20 @@ void socket_helper::ServerSocket::Listen(int backlog)
 
         std::string message_received = client_socket.Read();
         std::cout << "Message received: " << message_received << std::endl;
-        if (message_received.find("QUIT") != std::string::npos)
+        auto message_string_pos = message_received.find("msgInput");
+        if (message_string_pos != std::string::npos)
         {
-            std::cout << "Received QUIT. Quitting." << std::endl;
-            shutdown(client_socket.GetSocket(), SHUT_RDWR);
-            client_socket.Close();
-            return;
+            auto message = message_received.substr(message_string_pos + 9);
+            std::cout << "********** Message sent by the client **********\n\n";
+            std::cout << message << "\n\n";
+            std::cout << "************************************************\n\n";
+            if(message == "QUIT")
+            {
+                std::cout << "Received QUIT. Quitting." << std::endl;
+                shutdown(client_socket.GetSocket(), SHUT_RDWR);
+                client_socket.Close();
+                return;
+            }
         }
 
         client_socket.SendFile("../../website/index.html");
